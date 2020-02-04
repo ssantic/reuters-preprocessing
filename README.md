@@ -15,20 +15,15 @@ The purpose of this module is to preprocess a set of SGML documents representing
 This python module contains the following files and directories:
 
 * preprocess.py - main module for preprocessing the Reuters article database
-* feature1.py - sub-module that generates feature vector dataset #1
-* feature2.py - sub-module that generates feature vector dataset #2
-* feature3.py - sub-module that generates feature vector dataset #3
-* tfidf.py - module for term frequency-inverse document frequency
+* feature.py - sub-module that generates feature vector dataset
 * data/
     * reut2-xxx.sgm - formatted articles (replace xxx from {000,...,021})
 
-Running `preprocess.py` will generate the following files
+Running `preprocess.py` will generate the following file:
 
-* dataset1.csv
-* dataset2.csv
-* dataset3.csv
+* dataset.csv
 
-The feature vectors in the datasets were generated using the following methodologies
+The feature vectors in the dataset were generated using the following methodologies
 
 * TF-IDF of title & body words to select the top 1000 words as features
 * Filtering nouns & verbs from the term lists, and repeating the previous process

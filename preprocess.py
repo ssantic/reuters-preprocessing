@@ -9,7 +9,6 @@ import os
 import sys
 import string
 import nltk
-import threading # will potentially use multi-threading
 from nltk.stem.porter import *
 from nltk.corpus import stopwords
 from nltk.corpus import wordnet
@@ -17,16 +16,15 @@ from nltk.stem.wordnet import WordNetLemmatizer
 from bs4 import BeautifulSoup
 
 ###############################################################################
-###### modules for feature selection & feature vector dataset generation ######
+###### module for feature selection & feature vector dataset generation ######
 ###############################################################################
 
-import feature1
-import feature2
-import feature3
+import feature
 
 ###############################################################################
 ################ function(s) for generating document objects ##################
 ###############################################################################
+
 
 def init_document():
     """ function: init_document
@@ -40,10 +38,11 @@ def init_document():
         @dictionary['words']['title'] is a list for the title text terms
         @dictionary['words']['body'] is a list for the body text terms
     """
-    document = { 'topics' : [], 'places' : [], 'words' : dict([]) }
+    document = {'topics': [], 'places': [], 'words': dict([])}
     document['words']['title'] = []
-    document['words']['body']  = []
+    document['words']['body'] = []
     return document
+
 
 def populate_class_label(document, article):
     """ function: populate_class_label
@@ -59,6 +58,7 @@ def populate_class_label(document, article):
     for place in article.places.children:
         document['places'].append(place.text.encode('ascii', 'ignore'))
 
+
 def populate_word_list(document, article):
     """ function: populate_word_list
         ----------------------------
@@ -71,10 +71,11 @@ def populate_word_list(document, article):
     text = article.find('text')
     title = text.title
     body = text.body
-    if title != None:
+    if title is not None:
         document['words']['title'] = tokenize(title.text)
-    if body != None:
+    if body is not None:
         document['words']['body'] = tokenize(body.text)
+
 
 def tokenize(text):
     """ function: tokenize
@@ -87,13 +88,13 @@ def tokenize(text):
     # encode unicode to string
     ascii = text.encode('ascii', 'ignore')
     # remove digits
-    no_digits = ascii.translate(None, string.digits)
+    no_digits = ascii.translate(None, string.digits.encode('ascii', 'ignore'))
     # remove punctuation
-    no_punctuation = no_digits.translate(None, string.punctuation)
+    no_punctuation = no_digits.translate(None, string.punctuation.encode('ascii', 'ignore'))
     # tokenize
-    tokens = nltk.word_tokenize(no_punctuation)
+    tokens = nltk.word_tokenize(no_punctuation.decode('ascii'))
     # remove stopwords - assume 'reuter'/'reuters' are also irrelevant
-    no_stop_words = [w for w in tokens if not w in stopwords.words('english')]
+    no_stop_words = [w for w in tokens if w not in stopwords.words('english')]
     # filter out non-english words
     eng = [y for y in no_stop_words if wordnet.synsets(y)]
     # lemmatization process
@@ -105,10 +106,11 @@ def tokenize(text):
     stems = []
     stemmer = PorterStemmer()
     for token in lemmas:
-        stems.append(stemmer.stem(token).encode('ascii','ignore'))
+        stems.append(stemmer.stem(token).encode('ascii', 'ignore'))
     # remove short stems
     terms = [x for x in stems if len(x) >= 4]
     return terms
+
 
 def generate_document(text):
     """ function: generate_document
@@ -129,6 +131,7 @@ def generate_document(text):
 ############ function(s) for generating parse tree from .sgm files ############
 ###############################################################################
 
+
 def generate_tree(text):
     """ function: generate_tree
         -----------------------
@@ -143,6 +146,7 @@ def generate_tree(text):
 ########## function(s) for generating parse trees & document objects ##########
 ###############################################################################
 
+
 def parse_documents():
     """ function: parse_document
         ------------------------
@@ -154,7 +158,7 @@ def parse_documents():
     # generate well-formatted document set for each file
     for file in os.listdir('data'):
         # open 'reut2-XXX.sgm' file from /data directory
-        data = open(os.path.join(os.getcwd(), "data", file), 'r')
+        data = open(os.path.join(os.getcwd(), "data", file), 'rb')
         text = data.read()
         data.close()
         tree = generate_tree(text.lower())
@@ -162,12 +166,13 @@ def parse_documents():
         for reuter in tree.find_all("reuters"):
             document = generate_document(reuter)
             documents.append(document)
-        print "Finished extracting information from file:", file
+        print("Finished extracting information from", file)
     return documents
 
 ###############################################################################
 ##################### function(s) for generating lexicon ######################
 ###############################################################################
+
 
 def generate_lexicon(documents):
     """ function: generate_lexicon
@@ -177,7 +182,7 @@ def generate_lexicon(documents):
         :param documents: objects to generate lexicon information
         :returns: dictionary of sets for title & body lexicons
     """
-    lexicon = { 'title' : set(), 'body' : set() }
+    lexicon = {'title': set(), 'body': set()}
     for document in documents:
         for term in document['words']['title']:
             lexicon['title'].add(term)
@@ -188,6 +193,7 @@ def generate_lexicon(documents):
 ###############################################################################
 ################## main function - single point of execution ##################
 ###############################################################################
+
 
 def main(argv):
     """ function: main
@@ -209,14 +215,9 @@ def main(argv):
     # print(len(lexicon['title']))
     # print(len(lexicon['body']))
 
-    # generate dataset 1 w tfidf (using feature1 module)
-    feature1.generate_dataset(documents, lexicon)
-
-    # generate dataset 2 w tfidf (using feature2 module)
-    feature2.generate_dataset(documents, lexicon)
-
     # generate dataset 3 w tfidf (using feature3 module)
-    feature3.generate_dataset(documents, lexicon)
+    feature.generate_dataset(documents, lexicon)
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])

@@ -1,6 +1,6 @@
 #!/usr/local/python-2.7.5/bin/python
 
-""" feature3.py
+""" feature.py
     -----------
     @author = Ankai Lou
 """
@@ -16,11 +16,12 @@ import operator
 ########## global variables for single-point of control over change ###########
 ###############################################################################
 
-datafile = 'dataset3.csv'
+datafile = 'dataset.csv'
 
 ###############################################################################
 ############### function for printing dataset to .csv document ################
 ###############################################################################
+
 
 def generate_csv(documents, features, weights):
     """ function: generate_csv
@@ -36,7 +37,6 @@ def generate_csv(documents, features, weights):
         dataset.write(feature)
         dataset.write('\t')
     dataset.write('class-label:topics\t')
-    dataset.write('class-label:places\t')
     dataset.write('\n')
     # feature vector for each document
     for i, document in enumerate(documents):
@@ -49,13 +49,13 @@ def generate_csv(documents, features, weights):
             dataset.write('\t')
         # topics/places class labels
         dataset.write(str(document['topics']))
-        dataset.write(str(document['places']))
         dataset.write('\n')
     dataset.close()
 
 ###############################################################################
 ###################### function(s) for feature selection ######################
 ###############################################################################
+
 
 def select_features(weights):
     """ function: select_features
@@ -78,6 +78,7 @@ def select_features(weights):
 ############## function(s) for generating weighted tf-idf scores ##############
 ###############################################################################
 
+
 def generate_weights(documents):
     """ function: generate_weights
         --------------------------
@@ -99,6 +100,7 @@ def generate_weights(documents):
 ###############################################################################
 ################ main function for generating refined dataset #################
 ###############################################################################
+
 
 def generate_dataset(documents, lexicon):
     """ function: generate_dataset
